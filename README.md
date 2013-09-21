@@ -1,0 +1,4 @@
+Ordered
+=======
+
+Ordered collection algorithms.
