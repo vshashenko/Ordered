@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Ordered
 {
     /// <summary>
-    /// Algorithms on ordered collections.
+    /// Algorithms for ordered collections.
     /// Thus all input collections must be sorted to get correct result.
     /// </summary>
     public static class OrderedExtensions
