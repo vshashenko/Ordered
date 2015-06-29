@@ -9,6 +9,32 @@ namespace Ordered
     /// </summary>
     public static class OrderedExtensions
     {
+        public static IEnumerable<T> Distinct<T>(this IEnumerable<T> seq)
+        {
+            return Distinct(seq, EqualityComparer<T>.Default);
+        }
+
+        public static IEnumerable<T> Distinct<T>(this IEnumerable<T> seq, IEqualityComparer<T> comparer)
+        {
+            var currentValue = default(T);
+            var enum1 = seq.GetEnumerator();
+
+            if (enum1.MoveNext())
+            {
+                currentValue = enum1.Current;
+                yield return currentValue;
+
+                while (enum1.MoveNext())
+                {
+                    if (!comparer.Equals(currentValue, enum1.Current))
+                    {
+                        currentValue = enum1.Current;
+                        yield return currentValue;
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
