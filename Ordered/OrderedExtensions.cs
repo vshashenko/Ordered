@@ -10,6 +10,45 @@ namespace Ordered
     public static class OrderedExtensions
     {
         /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="seq"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Distinct<T>(this IEnumerable<T> seq)
+        {
+            return Distinct(seq, EqualityComparer<T>.Default);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="seq"></param>
+        /// <param name="comparer"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Distinct<T>(this IEnumerable<T> seq, IEqualityComparer<T> comparer)
+        {
+            var currentValue = default(T);
+            var enum1 = seq.GetEnumerator();
+
+            if (enum1.MoveNext())
+            {
+                currentValue = enum1.Current;
+                yield return currentValue;
+
+                while (enum1.MoveNext())
+                {
+                    if (!comparer.Equals(currentValue, enum1.Current))
+                    {
+                        currentValue = enum1.Current;
+                        yield return currentValue;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Subtracts second collection from first collection.
         /// The complexity is O(n).
         /// </summary>
@@ -138,8 +177,31 @@ namespace Ordered
                     b2 = enum2.MoveNext();
                 }
             }
+
+            while (b1)
+            {
+                yield return enum1.Current;
+                b1 = enum1.MoveNext();
+            }
+
+            while (b2)
+            {
+                yield return enum2.Current;
+                b2 = enum2.MoveNext();
+            }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TOuter"></typeparam>
+        /// <typeparam name="TInner"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="outer"></param>
+        /// <param name="inner"></param>
+        /// <param name="outerKeySelector"></param>
+        /// <param name="innerKeySelector"></param>
+        /// <param name="joinAction"></param>
         public static void GroupJoin<TOuter, TInner, TKey>(
             this IEnumerable<TOuter> outer,
             IEnumerable<TInner> inner,
@@ -195,6 +257,110 @@ namespace Ordered
                     joinAction(item1, item2);
                     b2 = enum2.MoveNext();
                 }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static int BinarySearchFirst<T>(this IList<T> arr, T val)
+        {
+            return arr.BinarySearchFirst(val, Comparer<T>.Default);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="val"></param>
+        /// <param name="comparer"></param>
+        /// <returns></returns>
+        public static int BinarySearchFirst<T>(this IList<T> arr, T val, IComparer<T> comparer)
+        {
+            var lo = 0;
+            var hi = arr.Count;
+
+            while (lo < hi)
+            {
+                var mid = lo + (hi - lo) / 2;
+                if (comparer.Compare(arr[mid], val) < 0)
+                {
+                    lo = mid + 1;
+                }
+                else
+                {
+                    hi = mid;
+                }
+            }
+
+            if (lo < arr.Count && comparer.Compare(arr[lo], val) == 0)
+            {
+                return lo;
+            }
+            else
+            {
+                return ~lo;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static int BinarySearchLast<T>(this IList<T> arr, T val)
+        {
+            return arr.BinarySearchLast(val, Comparer<T>.Default);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="val"></param>
+        /// <param name="comparer"></param>
+        /// <returns></returns>
+        public static int BinarySearchLast<T>(this IList<T> arr, T val, IComparer<T> comparer)
+        {
+            return -1;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="value"></param>
+        /// <param name="comparer"></param>
+        public static void InsertOrdered<T>(this IList<T> list, T value, IComparer<T> comparer)
+        {
+            var i = list.BinarySearchFirst(value, comparer);
+            i = i < 0 ? ~i : i;
+
+            list.Insert(i, value);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="value"></param>
+        /// <param name="comparer"></param>
+        public static void RemoveOrdered<T>(this IList<T> list, T value, IComparer<T> comparer)
+        {
+            var i = list.BinarySearchFirst(value, comparer);
+            if (i >= 0)
+            {
+                list.RemoveAt(i);
             }
         }
     }

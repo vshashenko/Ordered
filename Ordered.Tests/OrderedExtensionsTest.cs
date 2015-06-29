@@ -4,9 +4,109 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ordered.Tests
 {
+    internal static class Ext
+    {
+        public static List<T> ToList<T>(this IEnumerable<T> seq)
+        {
+            var result = new List<T>();
+
+            foreach (var val in seq)
+            {
+                result.Add(val);
+            }
+
+            return result;
+        }
+    }
+
     [TestClass]
     public sealed class OrderedExtensionsTest
     {
+        [TestMethod]
+        public void DistinctSingleElement()
+        {
+            var input = new[] { 3 };
+            var expected = new[] { 3 };
+
+            var output = OrderedExtensions.Distinct(input).ToList();
+
+            CollectionAssert.AreEqual(expected, output);
+        }
+
+        [TestMethod]
+        public void DistinctAllEqualElements()
+        {
+            var input = new[] { 3, 3, 3 };
+            var expected = new[] { 3 };
+
+            var output = OrderedExtensions.Distinct(input).ToList();
+
+            CollectionAssert.AreEqual(expected, output);
+        }
+
+        [TestMethod]
+        public void DistinctAllDistinctElements()
+        {
+            var input = new[] { 3, 4, 5 };
+            var expected = new[] { 3, 4, 5 };
+
+            var output = OrderedExtensions.Distinct(input).ToList();
+
+            CollectionAssert.AreEqual(expected, output);
+        }
+
+        [TestMethod]
+        public void UnionBothEmpty()
+        {
+            var input1 = new int[] { };
+            var input2 = new int[] { };
+
+            var expected = new int[] { };
+
+            var output = OrderedExtensions.Union(input1, input2).ToList();
+
+            CollectionAssert.AreEqual(expected, output);
+        }
+
+        [TestMethod]
+        public void UnionFirstEmpty()
+        {
+            var input1 = new int[] { };
+            var input2 = new int[] { 1 };
+
+            var expected = new int[] { 1 };
+
+            var output = OrderedExtensions.Union(input1, input2).ToList();
+
+            CollectionAssert.AreEqual(expected, output);
+        }
+
+        [TestMethod]
+        public void UnionSecondEmpty()
+        {
+            var input1 = new int[] { };
+            var input2 = new int[] { 1 };
+
+            var expected = new int[] { 1 };
+
+            var output = OrderedExtensions.Union(input1, input2).ToList();
+
+            CollectionAssert.AreEqual(expected, output);
+        }
+
+        [TestMethod]
+        public void UnionEqualLength()
+        {
+            var input1 = new int[] { 1, 3, 5 };
+            var input2 = new int[] { 2, 4, 6 };
+
+            var expected = new int[] { 1, 2, 3, 4, 5, 6 };
+
+            var output = OrderedExtensions.Union(input1, input2).ToList();
+
+            CollectionAssert.AreEqual(expected, output);
+        }
+
         [TestMethod]
         public void MergeGroupJoinOneToOne()
         {
